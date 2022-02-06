@@ -20,6 +20,7 @@ class Car(ABC):
         self._lap_started = False
         self._lap_start_time = None
         self.locked_start = False
+        self._start_position = (145, 220)
 
     def check_lap_timer(self):
         if not self._lap_start_time or self._lap_started is False:
@@ -84,6 +85,11 @@ class Car(ABC):
 
         return poi
 
+    def resset_position(self):
+        self.x, self.y = self._start_position
+        self.angle = 0
+        self.vel = 0
+
     def _rotate(self, left=False, right=False):
         if left:
             self.angle += self.rotation_vel
@@ -107,7 +113,7 @@ class PlayerCar(Car):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.set_start_position(145, 220)
+        self.set_start_position(*self._start_position)
         self.set_asset(Asset.RED_CAR)
 
     def bounce(self):
