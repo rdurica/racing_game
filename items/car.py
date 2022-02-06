@@ -1,4 +1,6 @@
 from abc import ABC
+import datetime
+from datetime import datetime, timedelta
 import math
 
 import pygame
@@ -15,6 +17,30 @@ class Car(ABC):
         self.img = None
         self.x, self.y = 0, 0
         self.acceleration = 0.1
+        self._lap_started = False
+        self._lap_start_time = None
+        self.locked_start = False
+
+    def check_lap_timer(self):
+        if not self._lap_start_time or self._lap_started is False:
+            return
+        present = datetime.now()
+        max_time = self._lap_start_time + timedelta(seconds=3)
+        if present >= max_time:
+            self.locked_start = True
+
+    @property
+    def lap_started(self):
+        return self._lap_started
+
+    @lap_started.setter
+    def lap_started(self, value: bool):
+        if value is True:
+            if self._lap_started is not True:
+                self._lap_start_time = datetime.now()
+                self._lap_started = value
+        else:
+            self._lap_started = value
 
     def navigation(self):
         keys = pygame.key.get_pressed()
@@ -83,3 +109,7 @@ class PlayerCar(Car):
         super().__init__(*args, **kwargs)
         self.set_start_position(145, 220)
         self.set_asset(Asset.RED_CAR)
+
+    def bounce(self):
+        self.vel = -self.vel
+        self._move()

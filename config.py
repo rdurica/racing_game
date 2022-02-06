@@ -7,9 +7,11 @@ class Config:
     WIN = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption("Racing game")
     FPS = 60
+    FINISH_POSITION = (138, 200)
 
     @staticmethod
     def draw():
         Config.WIN.blit(Asset.GRASS, (0, 0))
         Config.WIN.blit(Asset.TRACK, (0, 0))
-        Config.WIN.blit(Asset.FINISH, (138, 200))
+        Config.WIN.blit(Asset.FINISH, Config.FINISH_POSITION)
+        Config.WIN.blit(Asset.TRACK_BORDER, (0, 0))

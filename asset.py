@@ -14,7 +14,8 @@ class Asset:
     TRACK = scale_image(pygame.image.load("assets/img/track.png"), 0.9)
     TRACK_BORDER = scale_image(pygame.image.load("assets/img/track-border.png"), 0.9)
     TRACK_BORDER_MASK = pygame.mask.from_surface(TRACK_BORDER)
-    FINISH = scale_image(pygame.image.load("assets/img/finish.png"), 0.8)
+    FINISH = scale_image(pygame.image.load("assets/img/finish.png"), 1)
+    FINISH_MASK = pygame.mask.from_surface(FINISH)
     RED_CAR = scale_image(pygame.image.load("assets/img/red-car.png"), 0.5)
     GREEN_CAR = scale_image(pygame.image.load("assets/img/green-car.png"), 0.5)
 
