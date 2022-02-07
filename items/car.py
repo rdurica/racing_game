@@ -6,11 +6,12 @@ import math
 import pygame
 
 from asset import Asset
+from config import Config
 
 
 class Car(ABC):
 
-    def __init__(self, max_vel, rotation_vel):
+    def __init__(self, max_vel, rotation_vel, *args, **kwargs):
         self.max_vel = max_vel
         self.rotation_vel = rotation_vel
         self.vel, self.angle = 0, 0
@@ -21,6 +22,7 @@ class Car(ABC):
         self._lap_start_time = None
         self.locked_start = False
         self._start_position = (145, 220)
+        self.current_point = 0
 
     def check_lap_timer(self):
         if not self._lap_start_time or self._lap_started is False:
@@ -89,6 +91,7 @@ class Car(ABC):
         self.x, self.y = self._start_position
         self.angle = 0
         self.vel = 0
+        self.current_point = 0
 
     def _rotate(self, left=False, right=False):
         if left:
@@ -119,3 +122,60 @@ class PlayerCar(Car):
     def bounce(self):
         self.vel = -self.vel
         self._move()
+
+
+class ComputerCar(Car):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.path = []
+        if "path" in kwargs:
+            self.path = kwargs.get("path")
+        self.current_point = 0
+        self.set_start_position(185, 220)
+        self.set_asset(Asset.GREEN_CAR)
+
+    def draw_points(self, win):
+        if not Config.DRAWER_ENABLED:
+            return
+        for point in self.path:
+            pygame.draw.circle(win, (255, 0, 0), point, 5)
+
+    def draw(self, win):
+        super().draw(win)
+        self.draw_points(win)
+
+    def move(self):
+        if self.current_point >= len(self.path):
+            return
+
+        self._calculate_angle()
+        self._update_path_point()
+        super().move_forward()
+
+    def _calculate_angle(self):
+        target_x, target_y = self.path[self.current_point]
+        x_diff = target_x - self.x
+        y_diff = target_y - self.y
+        if y_diff == 0:
+            desired_radian_angle = math.pi / 2
+        else:
+            desired_radian_angle = math.atan(x_diff / y_diff)
+
+        if target_y > self.y:
+            desired_radian_angle += math.pi
+
+        difference_in_angle = self.angle - math.degrees(desired_radian_angle)
+
+        if difference_in_angle >= 180:
+            difference_in_angle -= 360
+
+        if difference_in_angle > 0:
+            self.angle -= min(self.rotation_vel, abs(difference_in_angle))
+        else:
+            self.angle += min(self.rotation_vel, abs(difference_in_angle))
+
+    def _update_path_point(self):
+        target = self.path[self.current_point]
+        rect = pygame.Rect(self.x, self.y, self.img.get_width(), self.img.get_height())
+        if rect.collidepoint(*target):
+            self.current_point += 1
