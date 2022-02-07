@@ -11,7 +11,8 @@ from config import Config
 
 class Car(ABC):
 
-    def __init__(self, max_vel, rotation_vel, *args, **kwargs):
+    def __init__(self, name, max_vel, rotation_vel, *args, **kwargs):
+        self.name = name
         self.max_vel = max_vel
         self.rotation_vel = rotation_vel
         self.vel, self.angle = 0, 0
@@ -23,6 +24,10 @@ class Car(ABC):
         self.locked_start = False
         self._start_position = (145, 220)
         self.current_point = 0
+        self.lap_finished = False
+
+    def __str__(self):
+        return self.name
 
     def check_lap_timer(self):
         if not self._lap_start_time or self._lap_started is False:
@@ -110,6 +115,9 @@ class Car(ABC):
     def _reduce_speed(self):
         self.vel = max(self.vel - self.acceleration / 2, 0)
         self._move()
+
+    def bounce(self):
+        ...
 
 
 class PlayerCar(Car):

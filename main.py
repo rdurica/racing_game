@@ -2,7 +2,7 @@ import pygame
 
 from asset import Asset
 from config import Config
-from items.car import ComputerCar, PlayerCar
+from items.car import Car, ComputerCar, PlayerCar
 
 
 class App:
@@ -13,8 +13,8 @@ class App:
         self.clock = pygame.time.Clock()
 
     def run(self):
-        player_car = PlayerCar(max_vel=3.2, rotation_vel=2.5)
-        computer_car = ComputerCar(max_vel=3.2, rotation_vel=2.6, path=Config.COMPUTER_CAR_PATH)
+        player_car = PlayerCar(name="Player", max_vel=3.2, rotation_vel=2.5)
+        computer_car = ComputerCar(name="Computer", max_vel=3.2, rotation_vel=2.6, path=Config.COMPUTER_CAR_PATH)
 
         while self.is_running:
             self.clock.tick(Config.FPS)
@@ -52,21 +52,28 @@ class App:
             player_car.navigation()
             computer_car.move()
 
-            if player_car.collide(Asset.TRACK_BORDER_MASK) is not None:
-                player_car.bounce()
-            finish_poi_collide = player_car.collide(Asset.FINISH_MASK, *Config.FINISH_POSITION)
-            if player_car.collide(Asset.FINISH_MASK, *Config.FINISH_POSITION):
-                player_car.check_lap_timer()
-                if finish_poi_collide[1] == 0:
-                    if player_car.locked_start is True:
-                        player_car.bounce()
-                    else:
-                        player_car.lap_started = True
+            self.handle_collisions([player_car, computer_car])
 
-                if finish_poi_collide[1] == 15 and player_car.locked_start is True:
-                    print("--- Finished ---")
         print(f"Computer car path: {computer_car.path}")
         pygame.quit()
+
+    @staticmethod
+    def handle_collisions(cars: [Car]):
+        for car in cars:
+            if car.collide(Asset.TRACK_BORDER_MASK) is not None:
+                car.bounce()
+            finish_poi_collide_player = car.collide(Asset.FINISH_MASK, *Config.FINISH_POSITION)
+            if car.collide(Asset.FINISH_MASK, *Config.FINISH_POSITION):
+                car.check_lap_timer()
+                if finish_poi_collide_player[1] == 0:
+                    if car.locked_start is True:
+                        car.bounce()
+                    else:
+                        car.lap_started = True
+
+                if finish_poi_collide_player[1] == 15 and car.locked_start is True:
+                    car.lap_finished = True
+                    print(f"{car} finished the lap!")
 
 
 if __name__ == "__main__":
