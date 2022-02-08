@@ -5,7 +5,7 @@ import math
 
 import pygame
 
-from asset import Asset
+from assets.asset import Asset
 from config import Config
 
 
@@ -50,7 +50,7 @@ class Car(ABC):
         else:
             self._lap_started = value
 
-    def navigation(self):
+    def move(self):
         keys = pygame.key.get_pressed()
         moved = False
 
